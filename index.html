@@ -148,22 +148,6 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- Master EXP Progress -->
-      <div class="bg-white/5 rounded-xl p-4 mb-4">
-        <div class="flex justify-between items-center mb-2">
-          <div class="text-[10px] text-slate-500 uppercase tracking-widest">Progreso Master Level</div>
-          <div class="text-xs text-slate-400">ML <span id="ml-current" class="text-[#c084fc] font-bold">—</span> → <span id="ml-next" class="text-slate-400 font-bold">—</span></div>
-        </div>
-        <div class="bg-black/30 rounded-full h-2.5 mb-2 overflow-hidden">
-          <div id="ml-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#c084fc,#818cf8)"></div>
-        </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-[#fbbf24]"><span id="ml-exp-current">—</span> actual</span>
-          <span class="text-red-400">Faltan <span id="ml-exp-missing">—</span></span>
-          <span class="text-slate-500">Necesario: <span id="ml-exp-needed">—</span></span>
-        </div>
-      </div>
-
       <!-- Stats base -->
       <div class="border-t border-white/5 pt-4">
         <div class="text-[10px] text-slate-500 uppercase tracking-widest mb-3">Stats base</div>
@@ -256,9 +240,6 @@ const CLASS_MAP = {
   81:{ name:'Summoner',          filter:'sum'},
   96:{ name:'Rage Fighter',      filter:'rf' },
 };
-
-// ─── EXP por Master Level ────────────────────────────────
-const EXP_PER_ML = 37848100; // exp acumulada por cada ML (verificado en Balduneta)
 
 // ─── Estado ───────────────────────────────────────────────
 let characters  = [];    // [{name, profileData, rankingData}]
@@ -452,30 +433,6 @@ function renderCard(c) {
   document.getElementById('s-shield').textContent = formatNum(combat.shield    || 0);
 
   document.getElementById('ranking-class-label').textContent = info.name;
-
-  // Master EXP progress bar
-  if (me) {
-    const ml     = parseInt(me.MasterLevel);
-    const expNow = parseInt(me.MasterExperience);
-    const expForNext = (ml + 1) * EXP_PER_ML;
-    const expForCurr = ml * EXP_PER_ML;
-    const pct    = Math.min(100, Math.max(0, ((expNow - expForCurr) / (expForNext - expForCurr)) * 100));
-    const missing = Math.max(0, expForNext - expNow);
-
-    document.getElementById('ml-current').textContent  = ml;
-    document.getElementById('ml-next').textContent     = ml + 1;
-    document.getElementById('ml-bar').style.width      = pct.toFixed(1) + '%';
-    document.getElementById('ml-exp-current').textContent = formatNum(expNow);
-    document.getElementById('ml-exp-missing').textContent = formatNum(missing);
-    document.getElementById('ml-exp-needed').textContent  = formatNum(expForNext);
-  } else {
-    document.getElementById('ml-current').textContent = '—';
-    document.getElementById('ml-next').textContent    = '—';
-    document.getElementById('ml-bar').style.width     = '0%';
-    document.getElementById('ml-exp-current').textContent = '—';
-    document.getElementById('ml-exp-missing').textContent = '—';
-    document.getElementById('ml-exp-needed').textContent  = '—';
-  }
 }
 
 // ─── Render tabla ─────────────────────────────────────────
