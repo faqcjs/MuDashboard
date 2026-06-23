@@ -233,7 +233,7 @@ const PROFILE_API   = 'https://www.baldunetamu.com/api/characters/public-profile
 const RANKING_API   = 'https://www.baldunetamu.com/api/ranking/level';
 const PROFILE_URL   = 'https://www.baldunetamu.com/es/profile/';
 const REALM         = 'balduneta_v2';
-const REFRESH_SECS  = 30;
+const REFRESH_SECS  = 300;
 const STORAGE_KEY   = 'mu_characters';
 
 const CLASS_MAP = {
@@ -258,7 +258,7 @@ const CLASS_MAP = {
 };
 
 // ─── EXP por Master Level ────────────────────────────────
-const EXP_PER_ML = 37848100; // exp acumulada por cada ML (verificado en Balduneta)
+const EXP_PER_ML = 38087760; // exp acumulada por cada ML (verificado en Balduneta)
 
 // ─── Estado ───────────────────────────────────────────────
 let characters  = [];    // [{name, profileData, rankingData}]
@@ -293,10 +293,14 @@ function posColor(pos) {
 function openProfile(name) {
   window.open(PROFILE_URL + encodeURIComponent(name) + '?realm=' + REALM, '_blank');
 }
+
 function searchProfile(e) {
   e.preventDefault();
   const name = document.getElementById('search-input').value.trim();
-  if (name) openProfile(name);
+  if (name) {
+    openProfile(name);
+    document.getElementById('search-input').value = '';
+  }
 }
 function classInfo(classId) {
   return CLASS_MAP[classId] || { name:'Clase '+classId, filter:'sum' };
