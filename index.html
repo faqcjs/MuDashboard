@@ -47,7 +47,7 @@ tailwind.config = {
 <!-- ONBOARDING MODAL -->
 <div id="onboarding" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,.85);backdrop-filter:blur(8px)">
   <div class="w-full max-w-sm rounded-2xl border border-[#c084fc]/30 p-6 card-glow" style="background:linear-gradient(135deg,#110a1f,#0f1a2e)">
-    <div class="cinzel text-xl font-bold text-[#c084fc] mb-1 tracking-wider">⚔ MU Personajes</div>
+    <div class="cinzel text-xl font-bold text-[#c084fc] mb-1 tracking-wider text-center">⚔ MU Balduneta</div>
     <p class="text-slate-400 text-sm mb-6">Ingresá el nombre de tu personaje para empezar.</p>
     <input id="onboard-input" type="text" placeholder="Nombre del personaje..."
       class="w-full bg-white/5 border border-[#1e1e2e] rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#c084fc]/60 mb-2 transition-colors"/>
@@ -61,7 +61,7 @@ tailwind.config = {
 
 <!-- HEADER -->
 <header class="border-b border-[#1e1e2e] px-4 py-3 sticky top-0 z-40" style="background:linear-gradient(90deg,#0a0a0f,#110a1f)">
-  <div class="flex items-center justify-between mb-3">
+  <div class="flex items-center justify-between">
     <h1 class="cinzel text-base sm:text-lg font-bold text-[#c084fc] tracking-widest">⚔ MU Personajes</h1>
     <div class="flex items-center gap-3">
       <div class="flex items-center gap-2 text-xs text-slate-500">
@@ -70,14 +70,6 @@ tailwind.config = {
       </div>
     </div>
   </div>
-  <!-- BUSCADOR -->
-  <form onsubmit="searchProfile(event)" class="flex gap-2">
-    <input id="search-input" type="text" placeholder="Buscar cualquier personaje..."
-      class="flex-1 bg-white/5 border border-[#1e1e2e] rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#c084fc]/60 transition-colors"/>
-    <button type="submit" class="bg-[#c084fc]/20 hover:bg-[#c084fc]/30 border border-[#c084fc]/40 text-[#c084fc] rounded-lg px-4 py-2 text-sm font-medium transition-colors cinzel tracking-wider whitespace-nowrap">
-      Ver perfil
-    </button>
-  </form>
 </header>
 
 <!-- TABS DE PERSONAJES -->
@@ -214,12 +206,109 @@ tailwind.config = {
     </div>
   </div>
 
+  <!-- MODAL PERFIL -->
+  <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,.85);backdrop-filter:blur(8px)">
+    <div class="w-full max-w-lg rounded-2xl border border-[#c084fc]/30 overflow-hidden card-glow" style="background:linear-gradient(135deg,#110a1f,#0f1a2e);max-height:90vh;overflow-y:auto">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <div>
+          <div id="m-name" class="cinzel text-lg font-bold text-[#34d399]">—</div>
+          <div id="m-class" class="text-xs text-[#c084fc]/70 mt-0.5">—</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="openProfile(document.getElementById('m-name').textContent)" class="text-xs text-slate-500 hover:text-[#c084fc] transition-colors border border-[#1e1e2e] rounded-lg px-3 py-1.5">Ver en Balduneta ↗</button>
+          <button onclick="closeModal()" class="text-slate-500 hover:text-white text-xl leading-none transition-colors">×</button>
+        </div>
+      </div>
+      <div class="p-5 space-y-4">
+        <!-- Top stats -->
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-4">
+            <div class="text-center">
+              <div id="m-rank" class="cinzel text-3xl font-black text-[#c084fc]">—</div>
+              <div class="text-[9px] text-slate-500 tracking-[2px]">RANK</div>
+            </div>
+            <div>
+              <div id="m-guild" class="text-xs text-slate-500">—</div>
+              <div id="m-online" class="text-[10px] mt-1">—</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="m-gs" class="cinzel text-2xl font-bold text-[#f97316]">—</div>
+            <div class="text-[9px] text-slate-500 tracking-widest">GEARSCORE</div>
+          </div>
+        </div>
+        <!-- Stats grid -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-[9px] text-slate-500 mb-1">ML</div>
+            <div id="m-ml" class="text-sm font-semibold text-[#c084fc]">—</div>
+          </div>
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-[9px] text-slate-500 mb-1">Resets</div>
+            <div id="m-resets" class="text-sm font-semibold text-slate-200">—</div>
+          </div>
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-[9px] text-slate-500 mb-1">Nivel</div>
+            <div id="m-level" class="text-sm font-semibold text-slate-200">—</div>
+          </div>
+        </div>
+        <!-- Kills/Deaths -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-[#34d399]/5 border border-[#34d399]/20 rounded-xl p-3 flex items-center gap-2">
+            <span>⚔️</span>
+            <div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-widest">Kills</div>
+              <div id="m-kills" class="text-base font-bold text-[#34d399]">—</div>
+            </div>
+          </div>
+          <div class="bg-[#f87171]/5 border border-[#f87171]/20 rounded-xl p-3 flex items-center gap-2">
+            <span>💀</span>
+            <div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-widest">Muertes</div>
+              <div id="m-deaths" class="text-base font-bold text-[#f87171]">—</div>
+            </div>
+          </div>
+        </div>
+        <!-- Stats base -->
+        <div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-widest mb-2">Stats base</div>
+          <div class="grid grid-cols-5 gap-1.5">
+            <div class="bg-white/5 rounded-lg p-2 text-center"><div class="text-[8px] text-slate-500 mb-1">STR</div><div id="m-str" class="text-xs font-semibold">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2 text-center"><div class="text-[8px] text-slate-500 mb-1">AGI</div><div id="m-agi" class="text-xs font-semibold">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2 text-center"><div class="text-[8px] text-slate-500 mb-1">VIT</div><div id="m-vit" class="text-xs font-semibold">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2 text-center"><div class="text-[8px] text-slate-500 mb-1">ENE</div><div id="m-ene" class="text-xs font-semibold">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2 text-center"><div class="text-[8px] text-slate-500 mb-1">CMD</div><div id="m-cmd" class="text-xs font-semibold">—</div></div>
+          </div>
+        </div>
+        <!-- Combat -->
+        <div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-widest mb-2">Combat</div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <div class="bg-white/5 rounded-lg p-2"><div class="text-[8px] text-slate-500 mb-1">Vida</div><div id="m-life" class="text-xs font-semibold text-[#34d399]">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2"><div class="text-[8px] text-slate-500 mb-1">Mana</div><div id="m-mana" class="text-xs font-semibold text-[#60a5fa]">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2"><div class="text-[8px] text-slate-500 mb-1">BP</div><div id="m-bp" class="text-xs font-semibold text-[#fbbf24]">—</div></div>
+            <div class="bg-white/5 rounded-lg p-2"><div class="text-[8px] text-slate-500 mb-1">Escudo</div><div id="m-shield" class="text-xs font-semibold text-[#94a3b8]">—</div></div>
+          </div>
+        </div>
+        <div id="m-loading" class="hidden text-center text-slate-500 text-xs py-4">Cargando datos...</div>
+        <div id="m-error" class="hidden text-center text-red-400 text-xs py-4">No se pudo cargar el perfil.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- RANKING TABLE -->
   <div>
-    <h2 class="cinzel text-xs tracking-[4px] text-slate-500 uppercase mb-4">
+    <h2 class="cinzel text-xs tracking-[4px] text-slate-500 uppercase mb-3">
       Ranking · <span id="ranking-class-label" class="text-[#c084fc]">—</span>
-      <span class="text-slate-600 normal-case font-normal tracking-normal ml-2" style="font-family:Inter,sans-serif;font-size:11px">· click para ver perfil</span>
     </h2>
+    <!-- BUSCADOR -->
+    <form onsubmit="searchProfile(event)" class="flex gap-2 mb-4">
+      <input id="search-input" type="text" placeholder="Buscar cualquier personaje..."
+        class="flex-1 bg-white/5 border border-[#1e1e2e] rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#c084fc]/60 transition-colors"/>
+      <button type="submit" class="bg-[#c084fc]/20 hover:bg-[#c084fc]/30 border border-[#c084fc]/40 text-[#c084fc] rounded-lg px-4 py-2 text-sm font-medium transition-colors cinzel tracking-wider whitespace-nowrap">
+        Ver perfil
+      </button>
+    </form>
     <div id="table-wrap" class="overflow-x-auto rounded-xl border border-[#1e1e2e]">
       <div class="text-center py-16 text-slate-500 text-sm">Seleccioná un personaje para ver el ranking.</div>
     </div>
@@ -233,7 +322,7 @@ const PROFILE_API   = 'https://www.baldunetamu.com/api/characters/public-profile
 const RANKING_API   = 'https://www.baldunetamu.com/api/ranking/level';
 const PROFILE_URL   = 'https://www.baldunetamu.com/es/profile/';
 const REALM         = 'balduneta_v2';
-const REFRESH_SECS  = 300;
+const REFRESH_SECS  = 30;
 const STORAGE_KEY   = 'mu_characters';
 
 const CLASS_MAP = {
@@ -258,7 +347,7 @@ const CLASS_MAP = {
 };
 
 // ─── EXP por Master Level ────────────────────────────────
-const EXP_PER_ML = 38087760; // exp acumulada por cada ML (verificado en Balduneta)
+const EXP_PER_ML = 37848100; // exp acumulada por cada ML (verificado en Balduneta)
 
 // ─── Estado ───────────────────────────────────────────────
 let characters  = [];    // [{name, profileData, rankingData}]
@@ -293,14 +382,10 @@ function posColor(pos) {
 function openProfile(name) {
   window.open(PROFILE_URL + encodeURIComponent(name) + '?realm=' + REALM, '_blank');
 }
-
 function searchProfile(e) {
   e.preventDefault();
   const name = document.getElementById('search-input').value.trim();
-  if (name) {
-    openProfile(name);
-    document.getElementById('search-input').value = '';
-  }
+  if (name) openProfile(name);
 }
 function classInfo(classId) {
   return CLASS_MAP[classId] || { name:'Clase '+classId, filter:'sum' };
@@ -437,7 +522,15 @@ function renderCard(c) {
     : '';
 
   document.getElementById('c-ml').textContent     = me ? me.MasterLevel : '—';
-  document.getElementById('c-exp').textContent    = me ? formatNum(me.MasterExperience) : '—';
+  if (me) {
+    const expVal = parseInt(me.MasterExperience) || 0;
+    saveExpOnLoad(ch.name, expVal);
+    const delta = getExpDelta(ch.name, expVal);
+    const deltaStr = delta ? ` <span class="text-[10px] text-[#34d399]">(+${formatNum(delta)})</span>` : '';
+    document.getElementById('c-exp').innerHTML = formatNum(expVal) + deltaStr;
+  } else {
+    document.getElementById('c-exp').textContent = '—';
+  }
   document.getElementById('c-resets').textContent = ch.resets;
   document.getElementById('c-level').textContent  = ch.level;
 
@@ -496,7 +589,7 @@ function renderTable(c) {
   const rows = ranking.map(r => {
     const isMe = r.Name.toLowerCase() === myName;
     return `
-      <tr onclick="openProfile('${r.Name}')" class="${isMe?'bg-[#34d399]/5 border-l-2 border-[#34d399]':''} border-b border-white/5 hover:bg-white/[0.04] transition-colors">
+      <tr onclick="openModalProfile('${r.Name}')" class="${isMe?'bg-[#34d399]/5 border-l-2 border-[#34d399]':''} border-b border-white/5 hover:bg-white/[0.04] transition-colors">
         <td class="px-4 py-3 cinzel font-bold text-sm ${posColor(parseInt(r.RankingPos))}">#${r.RankingPos}</td>
         <td class="px-4 py-3 text-sm ${isMe?'font-bold text-[#34d399]':'font-medium text-slate-200 hover:text-[#c084fc]'}">
           ${r.Name}${isMe?' ←':''}
@@ -550,6 +643,90 @@ async function refreshCurrent() {
   countdown = REFRESH_SECS;
 }
 
+// ─── EXP delta (ganancia desde apertura) ─────────────────
+const expOnLoad = {}; // {charName: expAtLoad}
+
+function saveExpOnLoad(name, exp) {
+  if (!expOnLoad[name]) expOnLoad[name] = parseInt(exp) || 0;
+}
+
+function getExpDelta(name, currentExp) {
+  if (!expOnLoad[name]) return null;
+  const delta = (parseInt(currentExp) || 0) - expOnLoad[name];
+  return delta > 0 ? delta : null;
+}
+
+// ─── Modal perfil ─────────────────────────────────────────
+function closeModal() {
+  document.getElementById('profile-modal').classList.add('hidden');
+  document.getElementById('profile-modal').classList.remove('flex');
+}
+
+async function openModalProfile(name) {
+  const modal = document.getElementById('profile-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.getElementById('m-loading').classList.remove('hidden');
+  document.getElementById('m-error').classList.add('hidden');
+
+  // Reset fields
+  ['m-name','m-class','m-guild','m-online','m-rank','m-gs','m-ml','m-resets',
+   'm-level','m-kills','m-deaths','m-str','m-agi','m-vit','m-ene','m-cmd',
+   'm-life','m-mana','m-bp','m-shield'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '—';
+  });
+
+  try {
+    const [profileData, rankingData] = await Promise.all([
+      fetchProfile(name),
+      fetchProfile(name).then(p => fetchRanking(p.character.class))
+    ]);
+
+    const ch     = profileData.character;
+    const stats  = profileData.stats || {};
+    const base   = stats.base   || {};
+    const combat = stats.combat || {};
+    const info   = classInfo(ch.class);
+    const ranking = rankingData;
+    const meRank  = ranking.find(r => r.Name.toLowerCase() === ch.name.toLowerCase());
+    const topGs   = ranking.length ? Math.max(...ranking.map(r=>r.GearScore)) : 0;
+
+    document.getElementById('m-name').textContent   = ch.name;
+    document.getElementById('m-class').textContent  = info.name;
+    document.getElementById('m-guild').textContent  = ch.guild || 'Sin guild';
+    document.getElementById('m-online').innerHTML   = ch.isOnline
+      ? '<span class="text-[#34d399]">● En línea</span>'
+      : '<span class="text-slate-600">● Desconectado</span>';
+    document.getElementById('m-rank').textContent   = meRank ? '#'+meRank.RankingPos : '—';
+    document.getElementById('m-gs').textContent     = ch.gearScore;
+    document.getElementById('m-ml').textContent     = meRank ? meRank.MasterLevel : '—';
+    document.getElementById('m-resets').textContent = ch.resets;
+    document.getElementById('m-level').textContent  = ch.level;
+    document.getElementById('m-kills').textContent  = (ch.kills||0).toLocaleString();
+    document.getElementById('m-deaths').textContent = (ch.deads||0).toLocaleString();
+    document.getElementById('m-str').textContent    = base.strength   || 0;
+    document.getElementById('m-agi').textContent    = base.dexterity  || 0;
+    document.getElementById('m-vit').textContent    = base.vitality   || 0;
+    document.getElementById('m-ene').textContent    = base.energy     || 0;
+    document.getElementById('m-cmd').textContent    = base.leadership || 0;
+    document.getElementById('m-life').textContent   = formatNum(combat.maxLife   || 0);
+    document.getElementById('m-mana').textContent   = formatNum(combat.maxMana   || 0);
+    document.getElementById('m-bp').textContent     = formatNum(combat.maxBP     || 0);
+    document.getElementById('m-shield').textContent = formatNum(combat.shield    || 0);
+
+  } catch(e) {
+    document.getElementById('m-error').classList.remove('hidden');
+  } finally {
+    document.getElementById('m-loading').classList.add('hidden');
+  }
+}
+
+// Cerrar modal clickeando fuera
+document.getElementById('profile-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
 // ─── Init ─────────────────────────────────────────────────
 async function init() {
   const saved = loadStorage();
@@ -567,6 +744,8 @@ async function init() {
       const profile = await fetchProfile(name);
       const classId = profile.character.class;
       const ranking = await fetchRanking(classId);
+      const expInit = ranking.find(r => r.Name.toLowerCase() === profile.character.name.toLowerCase());
+      if (expInit) saveExpOnLoad(profile.character.name, expInit.MasterExperience);
       characters.push({ name: profile.character.name, profile, ranking });
     } catch(e) { /* si falla uno, lo saltea */ }
   }
