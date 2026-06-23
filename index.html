@@ -35,6 +35,8 @@ tailwind.config = {
   .tab-active { border-bottom:2px solid #c084fc; color:#c084fc; }
   .tab-inactive { border-bottom:2px solid transparent; color:#64748b; }
   ::-webkit-scrollbar { width:4px; height:4px; }
+  .skeleton { background: linear-gradient(90deg, #1e1e2e 25%, #2a2a3e 50%, #1e1e2e 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   ::-webkit-scrollbar-track { background:#0a0a0f; }
   ::-webkit-scrollbar-thumb { background:#1e1e2e; border-radius:4px; }
   tbody tr { cursor:pointer; }
@@ -79,8 +81,42 @@ tailwind.config = {
 <div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
   <!-- CARD PERSONAJE -->
-  <div id="char-card" class="rounded-2xl border border-[#c084fc]/40 card-glow overflow-hidden" style="background:linear-gradient(135deg,#110a1f,#0f1a2e)">
-    <div class="p-5 sm:p-7">
+  <div id="char-card" class="rounded-2xl border border-[#c084fc]/40 card-glow overflow-hidden relative" style="background:linear-gradient(135deg,#110a1f,#0f1a2e)">
+    <!-- Skeleton overlay -->
+    <div id="card-skeleton" class="hidden absolute inset-0 z-10 p-5 sm:p-7 space-y-5" style="background:linear-gradient(135deg,#110a1f,#0f1a2e)">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="skeleton w-16 h-16 rounded-xl"></div>
+          <div class="space-y-2">
+            <div class="skeleton h-6 w-32 rounded"></div>
+            <div class="skeleton h-3 w-20 rounded"></div>
+            <div class="skeleton h-3 w-24 rounded"></div>
+          </div>
+        </div>
+        <div class="space-y-2 text-right">
+          <div class="skeleton h-10 w-20 rounded ml-auto"></div>
+          <div class="skeleton h-3 w-16 rounded ml-auto"></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div>
+        <div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="skeleton h-16 rounded-xl"></div><div class="skeleton h-16 rounded-xl"></div>
+      </div>
+      <div class="skeleton h-16 rounded-xl"></div>
+      <div class="grid grid-cols-5 gap-2">
+        <div class="skeleton h-14 rounded-lg"></div><div class="skeleton h-14 rounded-lg"></div>
+        <div class="skeleton h-14 rounded-lg"></div><div class="skeleton h-14 rounded-lg"></div>
+        <div class="skeleton h-14 rounded-lg"></div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div class="skeleton h-12 rounded-lg"></div><div class="skeleton h-12 rounded-lg"></div>
+        <div class="skeleton h-12 rounded-lg"></div><div class="skeleton h-12 rounded-lg"></div>
+      </div>
+    </div>
+    <div id="card-content" class="p-5 sm:p-7">
       <!-- Top -->
       <div class="flex items-start justify-between gap-4 mb-5">
         <div class="flex items-center gap-4">
@@ -219,7 +255,45 @@ tailwind.config = {
           <button onclick="closeModal()" class="text-slate-500 hover:text-white text-xl leading-none transition-colors">×</button>
         </div>
       </div>
-      <div class="p-5 space-y-4">
+      <!-- Modal skeleton overlay -->
+      <div id="modal-skeleton" class="hidden p-5 space-y-4">
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-4">
+            <div class="skeleton w-12 h-12 rounded-xl"></div>
+            <div class="space-y-2">
+              <div class="skeleton h-4 w-24 rounded"></div>
+              <div class="skeleton h-3 w-16 rounded"></div>
+            </div>
+          </div>
+          <div class="space-y-2 text-right">
+            <div class="skeleton h-8 w-16 rounded ml-auto"></div>
+            <div class="skeleton h-3 w-14 rounded ml-auto"></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="skeleton h-14 rounded-xl"></div>
+          <div class="skeleton h-14 rounded-xl"></div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5">
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+          <div class="skeleton h-12 rounded-lg"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+          <div class="skeleton h-10 rounded-lg"></div>
+          <div class="skeleton h-10 rounded-lg"></div>
+          <div class="skeleton h-10 rounded-lg"></div>
+          <div class="skeleton h-10 rounded-lg"></div>
+        </div>
+      </div>
+      <div id="modal-content" class="p-5 space-y-4">
         <!-- Top stats -->
         <div class="flex justify-between items-start">
           <div class="flex items-center gap-4">
@@ -293,6 +367,7 @@ tailwind.config = {
         <div id="m-loading" class="hidden text-center text-slate-500 text-xs py-4">Cargando datos...</div>
         <div id="m-error" class="hidden text-center text-red-400 text-xs py-4">No se pudo cargar el perfil.</div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -494,6 +569,8 @@ function renderTabs() {
 function selectChar(idx) {
   currentIdx = idx;
   renderTabs();
+  showCardSkeleton();
+  showTableSkeleton();
   renderAll(idx);
 }
 
@@ -551,6 +628,7 @@ function renderCard(c) {
   document.getElementById('s-shield').textContent = formatNum(combat.shield    || 0);
 
   document.getElementById('ranking-class-label').textContent = info.name;
+  hideCardSkeleton();
 
   // Master EXP progress bar
   if (me) {
@@ -634,6 +712,8 @@ function renderAll(idx) {
 async function refreshCurrent() {
   const c = characters[currentIdx];
   if (!c) return;
+  showCardSkeleton();
+  showTableSkeleton();
   try {
     const profile = await fetchProfile(c.name);
     const classId = profile.character.class;
@@ -643,6 +723,32 @@ async function refreshCurrent() {
     renderAll(currentIdx);
   } catch(e) { /* silencioso */ }
   countdown = REFRESH_SECS;
+}
+
+// ─── Skeletons ────────────────────────────────────────────
+function showCardSkeleton() {
+  document.getElementById('card-skeleton').classList.remove('hidden');
+  document.getElementById('card-content').classList.add('invisible');
+}
+
+function hideCardSkeleton() {
+  document.getElementById('card-skeleton').classList.add('hidden');
+  document.getElementById('card-content').classList.remove('invisible');
+}
+
+function showTableSkeleton() {
+  document.getElementById('table-wrap').innerHTML = `
+    <div class="p-4 space-y-2">
+      ${[1,2,3,4,5,6,7,8].map(i=>`
+        <div class="flex gap-4 items-center px-2 py-2">
+          <div class="skeleton h-4 w-8 rounded"></div>
+          <div class="skeleton h-4 w-28 rounded"></div>
+          <div class="skeleton h-4 w-20 rounded hidden sm:block"></div>
+          <div class="skeleton h-4 w-10 rounded"></div>
+          <div class="skeleton h-4 w-16 rounded"></div>
+          <div class="skeleton h-4 w-10 rounded hidden sm:block"></div>
+        </div>`).join('')}
+    </div>`;
 }
 
 // ─── EXP delta (ganancia desde apertura) ─────────────────
@@ -668,8 +774,16 @@ async function openModalProfile(name) {
   const modal = document.getElementById('profile-modal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
-  document.getElementById('m-loading').classList.remove('hidden');
+  document.getElementById('m-loading').classList.add('hidden');
   document.getElementById('m-error').classList.add('hidden');
+  document.getElementById('modal-skeleton').classList.remove('hidden');
+  document.getElementById('modal-content').classList.add('hidden');
+
+  // Reset con skeleton en el modal
+  document.querySelectorAll('#profile-modal [id^="m-"]').forEach(el => {
+    if (el.tagName !== 'DIV' || el.id === 'm-loading' || el.id === 'm-error') return;
+    el.innerHTML = '<span class="skeleton inline-block h-4 w-16 rounded align-middle"></span>';
+  });
 
   // Reset fields
   ['m-name','m-class','m-guild','m-online','m-rank','m-gs','m-ml','m-resets',
@@ -720,7 +834,8 @@ async function openModalProfile(name) {
   } catch(e) {
     document.getElementById('m-error').classList.remove('hidden');
   } finally {
-    document.getElementById('m-loading').classList.add('hidden');
+    document.getElementById('modal-skeleton').classList.add('hidden');
+    document.getElementById('modal-content').classList.remove('hidden');
   }
 }
 
@@ -739,6 +854,8 @@ async function init() {
   }
 
   document.getElementById('onboarding').style.display = 'none';
+  showCardSkeleton();
+  showTableSkeleton();
 
   // Carga todos los personajes guardados
   for (const name of saved) {
