@@ -591,9 +591,8 @@ function renderCard(c) {
   document.getElementById('c-name').textContent   = ch.name;
   document.getElementById('c-class').textContent  = info.name;
   document.getElementById('c-guild').textContent  = ch.guild || 'Sin guild';
-  document.getElementById('c-online').innerHTML   = ch.isOnline
-    ? '<span class="text-[#34d399]">● En línea</span>'
-    : '<span class="text-slate-600">● Desconectado</span>';
+  const locStatus = getLocationStatus(ch.location, ch.isOnline, ch.name);
+  document.getElementById('c-online').innerHTML = locStatus ? `<span class="${locStatus.color} text-xs font-medium">${locStatus.text}</span>` : '';
 
   document.getElementById('c-gs').textContent     = ch.gearScore;
   document.getElementById('c-gs-vs').textContent  = topGs
@@ -725,6 +724,30 @@ async function refreshCurrent() {
   countdown = REFRESH_SECS;
 }
 
+// ─── Safe zones ───────────────────────────────────────────
+const SAFE_ZONES = [
+  { map: 38, x: 71,  y: 106 },
+  { map: 37,  x: 72,  y: 182  },
+  { map: 4,  x: 20,  y: 217 },
+];
+const SAFE_RADIUS = 5;
+
+function getLocationStatus(location, name) {
+  console.log(name, location)
+  if (!location) return { text: '⚔️ Farmeando', color: 'text-[#f97316]' };
+
+  const { map, x, y } = location;
+  const inSafe = SAFE_ZONES.some(z =>
+    z.map === map &&
+    Math.abs(z.x - x) <= SAFE_RADIUS &&
+    Math.abs(z.y - y) <= SAFE_RADIUS
+  );
+
+  return inSafe
+    ? { text: '🛡️ En safe',    color: 'text-[#34d399]' }
+    : { text: '⚔️ Farmeando', color: 'text-[#f97316]' };
+}
+
 // ─── Skeletons ────────────────────────────────────────────
 function showCardSkeleton() {
   document.getElementById('card-skeleton').classList.remove('hidden');
@@ -811,9 +834,8 @@ async function openModalProfile(name) {
     document.getElementById('m-name').textContent   = ch.name;
     document.getElementById('m-class').textContent  = info.name;
     document.getElementById('m-guild').textContent  = ch.guild || 'Sin guild';
-    document.getElementById('m-online').innerHTML   = ch.isOnline
-      ? '<span class="text-[#34d399]">● En línea</span>'
-      : '<span class="text-slate-600">● Desconectado</span>';
+    const mLocStatus = getLocationStatus(ch.location, ch.isOnline, ch.name);
+    document.getElementById('m-online').innerHTML = mLocStatus ? `<span class="${mLocStatus.color} text-xs font-medium">${mLocStatus.text}</span>` : '';
     document.getElementById('m-rank').textContent   = meRank ? '#'+meRank.RankingPos : '—';
     document.getElementById('m-gs').textContent     = ch.gearScore;
     document.getElementById('m-ml').textContent     = meRank ? meRank.MasterLevel : '—';
