@@ -462,7 +462,10 @@ function openProfile(name) {
 function searchProfile(e) {
   e.preventDefault();
   const name = document.getElementById('search-input').value.trim();
-  if (name) openProfile(name);
+  if (name) {
+    openModalProfile(name);
+    document.getElementById('search-input').value = '';
+  }
 }
 function classInfo(classId) {
   return CLASS_MAP[classId] || { name:'Clase '+classId, filter:'sum' };
