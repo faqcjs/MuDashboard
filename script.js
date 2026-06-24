@@ -3,7 +3,7 @@ const PROFILE_API   = 'https://www.baldunetamu.com/api/characters/public-profile
 const RANKING_API   = 'https://www.baldunetamu.com/api/ranking/level';
 const PROFILE_URL   = 'https://www.baldunetamu.com/es/profile/';
 const REALM         = 'balduneta_v2';
-const REFRESH_SECS  = 120;
+const REFRESH_SECS  = 30;
 const STORAGE_KEY   = 'mu_characters';
 
 const CLASS_MAP = {
@@ -56,27 +56,20 @@ function formatNum(n) {
   if (n>=1e3) return (n/1e3).toFixed(0)+'K';
   return n.toLocaleString();
 }
-
 function posColor(pos) {
   if (pos==1) return 'text-[#fbbf24]';
   if (pos==2) return 'text-slate-400';
   if (pos==3) return 'text-[#cd7c3a]';
   return 'text-slate-500';
 }
-
 function openProfile(name) {
   window.open(PROFILE_URL + encodeURIComponent(name) + '?realm=' + REALM, '_blank');
 }
-
 function searchProfile(e) {
   e.preventDefault();
   const name = document.getElementById('search-input').value.trim();
-  if (name) {
-    openModalProfile(name);
-    document.getElementById('search-input').value = '';
-  }
+  if (name) openProfile(name);
 }
-
 function classInfo(classId) {
   return CLASS_MAP[classId] || { name:'Clase '+classId, filter:'sum' };
 }
@@ -204,7 +197,7 @@ function renderCard(c) {
   document.getElementById('c-name').textContent   = ch.name;
   document.getElementById('c-class').textContent  = info.name;
   document.getElementById('c-guild').textContent  = ch.guild || 'Sin guild';
-  const locStatus = getLocationStatus(ch.location, ch.isOnline, ch.name);
+  const locStatus = getLocationStatus(ch.location, ch.isOnline);
   document.getElementById('c-online').innerHTML = locStatus ? `<span class="${locStatus.color} text-xs font-medium">${locStatus.text}</span>` : '';
 
   document.getElementById('c-gs').textContent     = ch.gearScore;
@@ -340,13 +333,13 @@ async function refreshCurrent() {
 // ─── Safe zones ───────────────────────────────────────────
 const SAFE_ZONES = [
   { map: 38, x: 71,  y: 106 },
-  { map: 37,  x: 72,  y: 182  },
-  { map: 37,  x: 20,  y: 217 },
+  { map: 4,  x: 94,  y: 86  },
+  { map: 4,  x: 20,  y: 217 },
 ];
 const SAFE_RADIUS = 5;
 
-function getLocationStatus(location, name) {
-  console.log(name, location)
+function getLocationStatus(location, isOnline) {
+  if (!isOnline) return null;
   if (!location) return { text: '⚔️ Farmeando', color: 'text-[#f97316]' };
 
   const { map, x, y } = location;
@@ -447,7 +440,7 @@ async function openModalProfile(name) {
     document.getElementById('m-name').textContent   = ch.name;
     document.getElementById('m-class').textContent  = info.name;
     document.getElementById('m-guild').textContent  = ch.guild || 'Sin guild';
-    const mLocStatus = getLocationStatus(ch.location, ch.isOnline, ch.name);
+    const mLocStatus = getLocationStatus(ch.location, ch.isOnline);
     document.getElementById('m-online').innerHTML = mLocStatus ? `<span class="${mLocStatus.color} text-xs font-medium">${mLocStatus.text}</span>` : '';
     document.getElementById('m-rank').textContent   = meRank ? '#'+meRank.RankingPos : '—';
     document.getElementById('m-gs').textContent     = ch.gearScore;
@@ -477,6 +470,135 @@ async function openModalProfile(name) {
 // Cerrar modal clickeando fuera
 document.getElementById('profile-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
+});
+
+// ─── Equipamiento ─────────────────────────────────────────
+const IMG_BASE = 'https://www.baldunetamu.com';
+
+const EXCELLENT_LABELS = {
+  2:  '+Life/kill',
+  4:  '+Mana/kill',
+  8:  '+DMG rate',
+  16: '+Wizardry',
+  32: '+Atk Speed',
+  64: '+Dmg%',
+};
+
+function getExcellentOpts(excellent) {
+  if (!excellent) return [];
+  return Object.entries(EXCELLENT_LABELS)
+    .filter(([bit]) => (excellent & parseInt(bit)) !== 0)
+    .map(([, label]) => label);
+}
+
+function closeEquipModal() {
+  document.getElementById('equip-modal').classList.add('hidden');
+  document.getElementById('equip-modal').classList.remove('flex');
+  if (equipOpenedFromProfile) {
+    equipOpenedFromProfile = false;
+    document.getElementById('profile-modal').classList.remove('hidden');
+    document.getElementById('profile-modal').classList.add('flex');
+  }
+}
+
+function renderEquipSection(sectionId, title, items) {
+  const el = document.getElementById(sectionId);
+  if (!items.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div>
+      <div class="cinzel text-base font-bold text-[#f97316] tracking-widest mb-4">${title}</div>
+      <div class="flex flex-wrap gap-3">
+        ${items.map(item => {
+          const excOpts = getExcellentOpts(item.excellent);
+          const rarityBorder = {
+            legendary: 'border-[#fbbf24]',
+            epic:      'border-[#c084fc]',
+            rare:      'border-[#60a5fa]',
+            uncommon:  'border-[#34d399]',
+            common:    'border-white/20',
+          }[item.rarity] || 'border-white/20';
+          const rarityGlow = {
+            legendary: 'shadow-[0_0_12px_rgba(251,191,36,0.5)]',
+            epic:      'shadow-[0_0_12px_rgba(192,132,252,0.5)]',
+            rare:      'shadow-[0_0_12px_rgba(96,165,250,0.4)]',
+            uncommon:  'shadow-[0_0_8px_rgba(52,211,153,0.3)]',
+            common:    '',
+          }[item.rarity] || '';
+
+          const tooltipLines = [
+            `<div class="font-bold text-[#f97316] mb-1 uppercase text-[9px] tracking-wider">[${item.rarity.toUpperCase()}] +${item.level}</div>`,
+            item.ancient ? '<div class="text-amber-300">✦ Ancient</div>' : '',
+            item.skill   ? '<div class="text-blue-300">✦ Skill</div>' : '',
+            item.luck    ? '<div class="text-yellow-300">✦ Luck</div>' : '',
+            ...excOpts.map(o => `<div class="text-[#c084fc]">✦ ${o}</div>`),
+          ].filter(Boolean).join('');
+
+          const levelBadge = item.level > 0
+            ? `<div class="absolute top-1 right-1 bg-[#f97316] text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center leading-none">+${item.level}</div>`
+            : '';
+          const luckBadge = item.luck
+            ? `<div class="absolute bottom-1 left-1 bg-yellow-500/90 text-white text-xs font-bold rounded px-1.5 py-0.5 leading-tight">L</div>`
+            : '';
+          const ancientBadge = item.ancient
+            ? `<div class="absolute bottom-1 right-1 bg-amber-500/90 text-white text-xs font-bold rounded px-1.5 py-0.5 leading-tight">A</div>`
+            : '';
+
+          return `
+            <div class="group relative bg-[#111118] border-2 ${rarityBorder} ${rarityGlow} rounded-xl p-2 w-16 h-16 flex items-center justify-center cursor-default hover:bg-white/5 transition-all">
+              <img src="${IMG_BASE}${item.imagePath}" alt="item" class="w-10 h-10 object-contain pixelated" onerror="this.style.display='none'"/>
+              ${levelBadge}${luckBadge}${ancientBadge}
+              <!-- Tooltip -->
+              <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 hidden group-hover:block bg-[#0d0d1a] border border-[#c084fc]/30 rounded-xl p-3 text-sm text-slate-300 space-y-1 pointer-events-none" style="min-width:180px">
+                ${tooltipLines}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+let equipOpenedFromProfile = false;
+
+async function openEquipModal(name, fromProfile = false) {
+  equipOpenedFromProfile = fromProfile;
+  // If opened from profile modal, hide it
+  if (fromProfile) {
+    document.getElementById('profile-modal').classList.add('hidden');
+    document.getElementById('profile-modal').classList.remove('flex');
+  }
+  const modal = document.getElementById('equip-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.getElementById('equip-charname').textContent = name;
+  document.getElementById('equip-error').classList.add('hidden');
+  document.getElementById('equip-skeleton').classList.remove('hidden');
+  document.getElementById('equip-content').classList.add('hidden');
+
+  try {
+    const data = await fetchProfile(name);
+    const inv = (data.inventory || []).filter(i => !i.isEmpty);
+
+    const weapons     = inv.filter(i => i.slotIndex <= 1);
+    const armor       = inv.filter(i => i.slotIndex >= 2 && i.slotIndex <= 7);
+    const wings       = inv.filter(i => i.slotIndex === 8);
+    const accessories = inv.filter(i => i.slotIndex >= 9 && i.slotIndex <= 12);
+
+    renderEquipSection('equip-section-weapons',     'Weapons',     weapons);
+    renderEquipSection('equip-section-armor',       'Armor',       armor);
+    renderEquipSection('equip-section-wings',       'Wings',       wings);
+    renderEquipSection('equip-section-accessories', 'Accessories', accessories);
+
+  } catch(e) {
+    document.getElementById('equip-error').classList.remove('hidden');
+  } finally {
+    document.getElementById('equip-skeleton').classList.add('hidden');
+    document.getElementById('equip-content').classList.remove('hidden');
+  }
+}
+
+// Cerrar equip modal clickeando fuera
+document.getElementById('equip-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEquipModal();
 });
 
 // ─── Init ─────────────────────────────────────────────────
